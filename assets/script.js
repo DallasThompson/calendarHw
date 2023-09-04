@@ -1,10 +1,9 @@
-// Wrap all code that interacts with the DOM in a call to jQuery to ensure that
-// the code isn't run until the browser has finished rendering all the elements
-// in the html.
-
 $(function () {
   var saveBtnsEl = $(".saveBtn");
   var hourEls = $(".time-block");
+  var today = new Date();
+  var localHour = today.getHours();
+  var currentDay = $("#currentDay")[0];
 
   function saveEvent(event) {
     var buttonPressedEl;
@@ -19,26 +18,38 @@ $(function () {
     hourEl = buttonPressedEl.siblings(".hour");
     textAreaEl = buttonPressedEl.siblings("textArea");
     console.log(hourEl.text());
-    localStorage.setItem(hourEl.text(), textAreaEl.val());
+    var parentsEl = buttonPressedEl.closest(".time-block");
+    localStorage.setItem(parentsEl.attr("id"), textAreaEl.val());
   }
 
   saveBtnsEl.each((index, element) => {
     $(element).on("click", saveEvent);
   });
 
-  // TODO: Add code to apply the past, present, or future class to each time
-  // block by comparing the id to the current hour. HINTS: How can the id
-  // attribute of each time-block be used to conditionally add or remove the
-  // past, present, and future classes? How can Day.js be used to get the
-  // current hour in 24-hour time?
   hourEls.each((index, element) => {
-    $(element);
+    var hour = $(element).attr("id");
+
+    if (hour === localHour) {
+      $(element).addClass("present");
+    } else if (hour < localHour) {
+      $(element).addClass("past");
+    } else if (hour > localHour) {
+      $(element).addClass("future");
+    }
   });
 
-  // TODO: Add code to get any user input that was saved in localStorage and set
-  // the values of the corresponding textarea elements. HINT: How can the id
-  // attribute of each time-block be used to do this?
-  //
+  hourEls.each((index, element) => {
+    var hour = $(element).find("textarea");
+    var id = $(element).attr("id");
+    var item = localStorage.getItem(id);
+    console.log(item);
 
-  // TODO: Add code to display the current date in the header of the page.
+    if (item) {
+      hour.val(item);
+    }
+  });
+
+  $(currentDay).text(
+    today.getMonth() + "-" + today.getDate() + "-" + today.getFullYear()
+  );
 });
